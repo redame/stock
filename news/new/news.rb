@@ -6,6 +6,8 @@ require "nokogiri"
 require "json"
 require "nkf"
 require "date"
+require "aws-sdk"
+require "tmpdir"
 
 class YahooNews
   def initialize(outdir)
@@ -78,7 +80,6 @@ p fname
       hash["source"]=src
       return false if src == nil or src == ""
       tim=NKF.nkf("-w",mn.xpath('.//p[@class="source"]/text()').text.gsub(/\n/,"")).gsub(/配信/,"").gsub(/^.*\)/,"")
-#      p src.split(" ")
       hash["time"]=make_time(ymd,tim)
       hash["body"]=NKF.nkf("-w",mn.xpath('.//p[@class="ynDetailText"]').text.gsub(/\n/,""))
       return true

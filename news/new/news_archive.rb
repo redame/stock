@@ -13,7 +13,15 @@ class YahooNews
   end
 
   def exec(key)
-    doc=Nokogiri::HTML open 'http://news.yahoo.co.jp/hl?c='+key
+    i=2
+    while i <= 100
+      exec_page(key,i)
+      i=i+1
+    end
+  end
+  def exec_page(key,p)
+p key+","+p.to_s
+    doc=Nokogiri::HTML open 'http://news.yahoo.co.jp/hl?c='+key+'&p='+p.to_s
     lst=doc.xpath('//div[@class="articleList"]').xpath('.//ul[@class="listBd"]/li')
     hash=nil
     lst.each do |node|
@@ -24,29 +32,18 @@ begin
       end
       fname=hash["href"].gsub(/^.*?a=/,"")
       ymd=fname.gsub(/-.*$/,"")
-      ymd=conv_ymd(ymd)
-      return if File.exists?(@outdir+"/"+ymd+"/"+key+"/"+fname)
+      #return if File.exists?(@outdir+"/"+ymd+"/"+key+"/"+fname)
 
       hash["title"]=node.xpath('.//a').text #title
       next if !get_body?(hash,ymd)
       write(hash,ymd,key,fname)
-      sleep (1)
+      sleep (2)
 rescue => e
 p $!
 p e 
 p hash
 end
     end
-  end
-  def conv_ymd(ymd)
-    yy=ymd[0,4]
-    if yy.to_i > Time.now.year then
-      yy=Time.now.year.to_s
-      return yy.to_s+ymd[4,2]+ymd[6,2]
-    else
-      return ymd
-    end
-    
   end
   def make_time(ymd,tim)
     s=ymd[0,4]+"-"+ymd[4,2]+"-"+ymd[6,2]+" "

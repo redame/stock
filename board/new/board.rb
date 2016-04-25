@@ -1,32 +1,32 @@
 #!/bin/env ruby
 # coding:utf-8
 
+#require "aws-sdk"
 require "open-uri"
 require "nokogiri"
 require "json"
 require "nkf"
 require "date"
+require "fileutils"
 
 class YahooBoard
   def initialize(outdir)
     @outdir=outdir
-p @outdir
   end
 
   def exec(code,topurl)
-p topurl
     url=topurl
     while true
       exit 1 if !get_data(code,url)
       url=prev_url(url)
-p url
       break if url==nil or url==0
-      sleep 1
+      sleep rand(3)+1
     end
     exit 0
   end
 
   def get_data(code,url)
+p url
 begin
     iswrite=false
     doc=Nokogiri::HTML open url
@@ -37,8 +37,8 @@ begin
       num=trim(ele.xpath('.//span[@class="comNum"]').text).to_i
       next if num == 0 
 
-      filename=getfilename(url,num);
-      next if File.exists?(filename)
+      filename,fname=getfilename(url,num);
+      next if File.exists?(@outdir+"/"+File.basename(filename)) 
 
       hash["num"]=num
       hash["stockCode"]=code
@@ -71,29 +71,34 @@ begin
       nega=comLike.xpath('./li[@class="negative"]/a/span').text.to_i
       hash["positive"]=posi
       hash["negative"]=nega
-      write(filename,hash)
+      write(filename,fname,hash)
       iswrite=true
     end
 rescue => e
+      p $!
       return false
 end
       return iswrite
   end
 
   def getfilename(url,num)
-    path=@outdir+url.gsub(/^.*\/message/,"").gsub(/\?.*$/,"")
+    path="textream"+url.gsub(/^.*\/message/,"").gsub(/\?.*$/,"")
     filename=path+"/"+num.to_s+".json"
-    return filename
+    return filename,num.to_s+".json"
   end
 
-  def write(filename,hash)
-    path=File.dirname(filename)
-    #path=@outdir+url.gsub(/^.*\/message/,"")
-    FileUtils.mkdir_p(path)
-    #open(path+"/"+num.to_s+".json","w") do |f|
-    open(filename,"w") do |f|
-      f.puts(JSON.generate(hash))
+  def write(filename,fname,hash)
+p "write="+filename.to_s
+    Dir.mktmpdir do |dir|
+      fi="#{dir}/"+fname
+      open(fi,"w") do |f|
+        f.puts(JSON.generate(hash))
+      end
+      file_open = File.open(fi)
+      file_name = File.basename(fi)
+      FileUtils.cp(fi,@outdir)
     end
+
   end
 
   def trim(s)
@@ -102,7 +107,7 @@ end
 
   def prev_url(url)
     doc=Nokogiri::HTML open url
-    lst=doc.xpath('//div[@id="threadHd"]').xpath('./ul/li[@class="threadBefore"]/a')
+    lst=doc.xpath('//div[@id="toppg"]').xpath('.//ul/li[@class="prev"]/a')
     lst.each do |v|
       return v["href"]
     end
@@ -111,17 +116,24 @@ end
 
 
   # 6月11日 16:53
+  #  "2015年5月1日 03:11"
   def conv_ymd(ymd)
-    dt=Time.now.year.to_s+"-"+ymd.gsub(/月/,"-").gsub(/日/,"")+":00"
-    return Date.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
+    dt=nil
+    if ymd.include?("年") then
+      dt=ymd.gsub(/年/,"-").gsub(/月/,"-").gsub(/日/,"")+":00"
+    else
+      dt=Time.now.year.to_s+"-"+ymd.gsub(/月/,"-").gsub(/日/,"")+":00"
+    end
+    ret= DateTime.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
+    return ret
   end
 
 end
 
 
 if __FILE__ == $0 then
-  if ARGV[0] == nil or ARGV[1] == nil or ARGV[2] == nil then
-    p "usage:"+$0 + " outdir code url"
+  if ARGV[0] == nil or ARGV[1] == nil  then
+    p "usage:"+$0 + " code url [outdir]"
   end
-  YahooBoard.new(ARGV[0]).exec(ARGV[1],ARGV[2])
+  YahooBoard.new(ARGV[2]).exec(ARGV[0],ARGV[1])
 end
