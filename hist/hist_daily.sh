@@ -37,9 +37,10 @@ for code in $codes;do
 .import $code histDaily
 Eof
 
-#  psql -Upostgres stock << Eof
-#copy histDaily from '/home/pi/stock/data/daily/${code}' with csv;
-#Eof
+  mysql -ustock -hlocalhost --local-infile=1 stock << Eof
+load data local infile "/home/pi/stock/data/${code}" into table histDaily
+;
+Eof
 done
 
 
@@ -51,9 +52,11 @@ delete from stockMaster;
 .import daily/master.txt stockMaster
 Eof
 
-#psql -Upostgres stock << Eof
-#delete from stockMaster;
-#copy stockMaster from '/home/pi/stock/data/daily/master.txt' with csv;
-#Eof
+mysql -ustock -hlocalhost --local-infile=1 stock << Eof
+delete from stockMaster
+;
+load data local infile "/home/pi/stock/data/daily/master.txt" into table stockMaster
+;
+Eof
 
 date
