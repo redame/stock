@@ -52,7 +52,7 @@ delete from stockMaster;
 .import daily/master.txt stockMaster
 Eof
 
-mysql -ustock -hlocalhost --local-infile=1 stock << Eof
+mysql -ustock -hlocalhost --local-infile=1 --default-character-set=utf8 stock << Eof
 delete from stockMaster
 ;
 load data local infile "/home/pi/stock/data/daily/master.txt" into table stockMaster

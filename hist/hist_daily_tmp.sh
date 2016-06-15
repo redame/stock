@@ -31,6 +31,8 @@ echo "stockmaster"
 mysql -ustock -hlocalhost --local-infile=1 stock << Eof
 delete from stockMaster
 ;
+set names utf8
+;
 load data local infile "/home/pi/stock/data/daily/master.txt" into table stockMaster
 ;
 Eof
