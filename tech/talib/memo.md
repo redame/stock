@@ -65,3 +65,6 @@
 |CDLUNIQUE3RIVER|     Unique 3 River|
 |CDLUPSIDEGAP2CROWS|  Upside Gap Two Crows|
 |CDLXSIDEGAP3METHODS| Upside/Downside Gap Three Methods|
+
+
+## ashigata

@@ -48,7 +48,7 @@ sik
 kyuoki
 "
 
-cd /home/pi/stock/news/bin
+cd /home/pi/stock/news
 LOCK=/tmp/news.lock
 if [ -f $LOCK ];then
   exit 1
@@ -56,7 +56,7 @@ fi
 touch $LOCK
 
 for cate in $categories;do
-  ruby news.rb "/mnt/news/data" $cate  
+  ruby news.rb "/data/news/data" $cate  
 done
 
 rm -rf $LOCK

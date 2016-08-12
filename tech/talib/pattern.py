@@ -17,14 +17,14 @@ import pandas as pd
 
 class PatternCalcurator:
     def __init__(self,fromDate,toDate):
-        self.connection = MySQLdb.connect(host="localhost",db="live",user="root",passwd="")
+        self.connection = MySQLdb.connect(host="localhost",db="stock",user="stock",passwd="")
         self.fromDate=fromDate
         self.toDate = toDate
 
-        self.connection2 = MySQLdb.connect(host="localhost",db="fintech",user="root",passwd="")
+        self.connection2 = MySQLdb.connect(host="localhost",db="stock",user="stock",passwd="")
     def calc(self,stockCode):
         cursor=self.connection.cursor()
-        cursor.execute("select date,oprice,high,low,cprice,volume from ST_priceHistAdj where stockCode=%s and date>=%s and date<=%s",(stockCode,self.fromDate,self.toDate))
+        cursor.execute("select date,open,high,low,close,volume from histDaily where code=%s and date>=%s and date<=%s",(stockCode,self.fromDate,self.toDate))
         result = cursor.fetchall()
 
         ohlc=[]
@@ -114,21 +114,21 @@ class PatternCalcurator:
     def __write_to_db(self,date,stockCode,pattern,value):
         print date+","+stockCode+","+pattern+","+str(value)
         cursor=self.connection2.cursor()
-        cursor.execute("replace into fintech.talibPattern(date,stockCode,pattern,value) values(%s,%s,%s,%s)",(date,stockCode,pattern,value))
+        cursor.execute("replace into talibPattern(date,code,pattern,value) values(%s,%s,%s,%s)",(date,stockCode,pattern,value))
         self.connection2.commit()
         cursor.close()
 
 
 class Executor:
     def __init__(self,fromDate,toDate):
-        self.connection = MySQLdb.connect(host="localhost",db="live",user="root",passwd="")
+        self.connection = MySQLdb.connect(host="localhost",db="stock",user="stock",passwd="")
         self.fromDate=fromDate
         self.toDate=toDate
 
 
     def calc(self):
         cursor=self.connection.cursor()
-        cursor.execute("select distinct stockCode from ST_priceHistAdj where date>=%s and date<=%s order by stockCode",(self.fromDate,self.toDate))
+        cursor.execute("select distinct code from histDaily where date>=%s and date<=%s order by code",(self.fromDate,self.toDate))
         stockCodes = cursor.fetchall()
         for stockCode in stockCodes:
             print stockCode[0]
