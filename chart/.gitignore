@@ -1,0 +1,14 @@
+*.pyc
+data/*
+.idea
+.project
+.pydevproject
+.settings/
+
+!image.png
+._*
+*/._*
+*/*/cv
+*/*/*/*.bin
+*/log.txt
+*/txt
