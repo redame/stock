@@ -27,6 +27,7 @@ p url
   end
 
   def get_data(code,url)
+p "code="+code.to_s+",url="+url.to_s
 begin
     iswrite=false
     doc=Nokogiri::HTML open url
@@ -75,8 +76,12 @@ begin
       iswrite=true
     end
 rescue => e
+      p e
+      p $!    
+      p $@
       return false
 end
+p "iswrite="+iswrite.to_s
       return iswrite
   end
 
@@ -101,8 +106,13 @@ end
   end
 
   def prev_url(url)
+p "prev_url-->"+url
     doc=Nokogiri::HTML open url
-    lst=doc.xpath('//div[@id="threadHd"]').xpath('./ul/li[@class="threadBefore"]/a')
+    #lst=doc.xpath('//div[@id="threadHd"]').xpath('./ul/li[@class="threadBefore"]/a')
+    #lst=doc.xpath('//div[@id="threadHd"]').xpath('./ul/li[@class="threadBefore"]/a')
+    lst=doc.xpath('//div[@id="toppg"]/div/ul').xpath("./li[2]/a")
+p lst
+
     lst.each do |v|
       return v["href"]
     end
@@ -112,8 +122,15 @@ end
 
   # 6月11日 16:53
   def conv_ymd(ymd)
-    dt=Time.now.year.to_s+"-"+ymd.gsub(/月/,"-").gsub(/日/,"")+":00"
-    return Date.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
+# "ymd=2015年4月28日 06:22"
+#p "ymd="+ymd
+    if ymd.include?("年") then
+      dt=ymd.gsub(/年/,"-").gsub(/月/,"-").gsub(/日/,"")+":00"
+      return Date.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
+    else
+      dt=Time.now.year.to_s+"-"+ymd.gsub(/月/,"-").gsub(/日/,"")+":00"
+      return Date.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
+    end
   end
 
 end

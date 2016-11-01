@@ -17,6 +17,7 @@ for url in $urls;do
     if [ $? = 1 ];then
       break
     fi
+exit
     sleep 1
   done
 done
