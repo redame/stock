@@ -189,10 +189,10 @@ class YahooBoard:
 
 
 if __name__ == '__main__':
-    #outdir = sys.argv[1]
-    #code = sys.argv[2]
-    #url = sys.argv[3]
-    outdir="tmp"
-    code="9963"
-    url="http://textream.yahoo.co.jp/message/1009963/9bebcibea6bbv/1"
+    outdir = sys.argv[1]
+    code = sys.argv[2]
+    url = sys.argv[3]
+    #outdir="tmp"
+    #code="9963"
+    #url="http://textream.yahoo.co.jp/message/1009963/9bebcibea6bbv/1"
     YahooBoard(outdir).execute(code, url)
