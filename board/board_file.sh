@@ -13,11 +13,10 @@ for url in $urls;do
   code=`get_code $url`
   for i in `seq 1 100`;do
     echo "python board.py /home/admin/data/board $code $url/$i"
-    python board.py /Volumes/admin/data $code $url/$i
+    python board.py /Volumes/admin/data/board $code $url/$i
     if [ $? = 1 ];then
       break
     fi
-exit
     sleep 1
   done
 done
