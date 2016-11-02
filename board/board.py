@@ -3,141 +3,143 @@
 
 import json
 import urllib
-import urllib2
-from lxml import etree
 import time
+import re
+import os
+import sys
+import datetime
+
 
 class YahooBoard:
-  def __init__(outdir):
-    self.outdir=outdir
+    def __init__(self, outdir):
+        self.outdir = outdir
 
-  def exec(code,topurl)
-p topurl
-    url=topurl
-    while true
-      exit 1 if !get_data(code,url)
-      url=prev_url(url)
-p url
-      break if url==nil or url==0
-      sleep 1
-    end
-    exit 0
-  end
+    def execute(self, code, topurl):
 
-  def get_data(code,url)
-p "code="+code.to_s+",url="+url.to_s
-begin
-    iswrite=false
-    doc=Nokogiri::HTML open url
-    lst=doc.xpath('//div[@id="cmtlst"]').xpath('.//ul[@class="commentList"]/li')
-    lst.each do |v|
-      hash=Hash.new
-      ele=v.xpath('.//div[@class="comment"]')
-      #num=trim(ele.xpath('.//span[@class="comNum"]').text).to_i
-      num=ele.xpath('.//span[@class="comNum"]').text.strip.gsub(/\（.*\）/,"")
-p "num="+num.to_s
-      next if num == 0 
+        url = topurl
+        while True:
+            if self.get_data(code, url) == False:
+                return 1
+            url = self.prev_url(url)
 
-      filename=getfilename(url,num);
-      next if File.exists?(filename)
+            if url == None or url == 0:
+                break
+            time.sleep(1)
 
-      hash["num"]=num
-      hash["stockCode"]=code
+        return 0
 
-      uele=ele.xpath('./div/p[@class="comWriter"]/a')
-      uele.each do |v|
-        hash["user"]=v["href"].to_s.gsub(/^.*?user=/,"")
-      end
-      
-      ymd=conv_ymd(ele.xpath('./div/p/span/a').text)
-      hash["date"]=ymd
+    def get_data(self, code, url):
+        try:
+            iswrite = False
+            doc = urllib.urlopen(url)
+            lst = doc.xpath('//div[@id="cmtlst"]').xpath('.//ul[@class="commentList"]/li')
+            for v in lst:
+                hash = {}
+                ele = v.xpath('.//div[@class="comment"]')
+                # num=trim(ele.xpath('.//span[@class="comNum"]').text).to_i
+                num = ele.xpath('.//span[@class="comNum"]').text.strip
+                num = re.sub("（.*\）", "", num)
+                if num == 0:
+                    continue
 
+                filename = self.getfilename(url, num)
+                if os.path.exists(filename):
+                    continue
 
-      eele=ele.xpath('./div/p[@class="comWriter"]/span[starts-with(@class,"emotionLabel")]')
-      if eele.size>0 then
-        hash["emotion"]=eele.attribute("class").text.gsub(/emotionLabel/,"").gsub(/ /,"")
-      else
-        hash["emotion"]=""
-      end
+                hash["num"] = num
+                hash["stockCode"] = code
 
+                uele = ele.xpath('./div/p[@class="comWriter"]/a')
+                for v in uele:
+                    hash["user"] = re.sub("^.*?user=", "", str(v["href"]))
 
-      replyto=trim(ele.xpath('./p[@class="comReplyTo"]/a').text).gsub(/>/,"").to_i
-      hash["replyto"]=replyto  if replyto != 0
+                ymd = self.conv_ymd(ele.xpath('./div/p/span/a').text)
+                hash["date"] = ymd
 
-      body=trim(ele.xpath('./p[@class="comText"]').text)
-      hash["body"]=body
+                eele = ele.xpath('./div/p[@class="comWriter"]/span[starts-with(@class,"emotionLabel")]')
+                if eele.size > 0:
+                    tmp = eele.attribute("class").text
+                    tmp = re.sub("emotionLabel", "", tmp)
+                    tmp = re.sub(" ", "", tmp)
+                    hash["emotion"] = tmp
+                else:
+                    hash["emotion"] = ""
 
-      comLike=ele.xpath('./div/ul[@class="comLike cf"]')
-      posi=comLike.xpath('./li[@class="positive"]/a/span').text.to_i
-      nega=comLike.xpath('./li[@class="negative"]/a/span').text.to_i
-      hash["positive"]=posi
-      hash["negative"]=nega
-      write(filename,hash)
-      iswrite=true
-    end
-rescue => e
-      p e
-      p $!    
-      p $@
-      return false
-end
-p "iswrite="+iswrite.to_s
-      return iswrite
-  end
+                replyto = ele.xpath('./p[@class="comReplyTo"]/a').text.trim
+                replyto = int(re.sub(">", "", replyto))
+                if replyto != 0:
+                    hash["replyto"] = replyto
 
-  def getfilename(url,num)
-    path=@outdir+url.gsub(/^.*\/message/,"").gsub(/\?.*$/,"")
-    filename=path+"/"+num.to_s+".json"
-    return filename
-  end
+                body = ele.xpath('./p[@class="comText"]').text.trim
+                hash["body"] = body
 
-  def write(filename,hash)
-    path=File.dirname(filename)
-    #path=@outdir+url.gsub(/^.*\/message/,"")
-    FileUtils.mkdir_p(path)
-    #open(path+"/"+num.to_s+".json","w") do |f|
-    open(filename,"w") do |f|
-      f.puts(JSON.generate(hash))
-    end
-  end
+                comLike = ele.xpath('./div/ul[@class="comLike cf"]')
+                posi = int(comLike.xpath('./li[@class="positive"]/a/span').text)
+                nega = int(comLike.xpath('./li[@class="negative"]/a/span').text)
+                hash["positive"] = posi
+                hash["negative"] = nega
+                self.write(filename, hash)
+                iswrite = True
 
-  def trim(s)
-    s.chomp.gsub(/"/,"").gsub(/\n/,"").gsub(/\r/,"").gsub(/ /,"").gsub(/<br>/,"")
-  end
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            iswrite = False
+        return iswrite
 
-  def prev_url(url)
-p "prev_url-->"+url
-    doc=Nokogiri::HTML open url
-    #lst=doc.xpath('//div[@id="threadHd"]').xpath('./ul/li[@class="threadBefore"]/a')
-    #lst=doc.xpath('//div[@id="threadHd"]').xpath('./ul/li[@class="threadBefore"]/a')
-    lst=doc.xpath('//div[@id="toppg"]/div/ul').xpath("./li[2]/a")
-p lst
+    def getfilename(self, url, num):
+        path = self.outdir + re.sub("\?.*$", "", re.sub("^.*\/message", "", url))
+        filename = path + "/" + num.to_s + ".json"
+        return filename
 
-    lst.each do |v|
-      return v["href"]
-    end
-    return nil
-  end
+    def write(self, filename, hash):
+        path = os.path.dirname(filename)
+        # path=@outdir+url.gsub(/^.*\/message/,"")
+        os.makedirs(path)
+        # open(path+"/"+num.to_s+".json","w") do |f|
+        with open(filename, "w") as f:
+            f.puts(json.dumps(hash))
 
+    def trim(self, s):
+        tmp = s.rstrip
+        tmp = re.sub('"', "", tmp)
+        tmp = re.sub("\n", "", tmp)
+        tmp = re.sub("\r", "", tmp)
+        tmp = re.sub(" ", "", tmp)
+        tmp = re.sub("<br>", "", tmp)
+        return tmp
 
-  # 6月11日 16:53
-  def conv_ymd(ymd)
-# "ymd=2015年4月28日 06:22"
-#p "ymd="+ymd
-    if ymd.include?("年") then
-      dt=ymd.gsub(/年/,"-").gsub(/月/,"-").gsub(/日/,"")+":00"
-      return Date.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
-    else
-      dt=Time.now.year.to_s+"-"+ymd.gsub(/月/,"-").gsub(/日/,"")+":00"
-      return Date.parse(dt).strftime("%Y-%m-%d %H:%M:%S")
-    end
-  end
+    def prev_url(self, url):
+        doc = urllib.urlopen(url)
+        lst = doc.xpath('//div[@id="toppg"]/div/ul').xpath("./li[2]/a")
 
-end
+        for v in lst:
+            return v["href"]
+
+        return None
+
+    # 6月11日 16:53
+    def conv_ymd(self, ymd):
+        # "ymd=2015年4月28日 06:22"
+        # p "ymd="+ymd
+        if ymd.include("年"):
+            dt = re.sub("年", "-", ymd)
+            dt = re.sub("月", "-", dt)
+            dt = re.sub("日", "", dt) + ":00"
+            now = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
+            return now.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            dt = re.sub("月", "-", ymd)
+            dt = re.sub("日", "", dt) + ":00"
+            dt = datetime.datetime.now().strftime("%Y") + "-" + dt
+            now = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
+            return now.strftime("%Y-%m-%d %H:%M:%S")
 
 
 if __name__ == '__main__':
-  outdir=sys.argv[1]
-  code=sys.argv[2]
-  url=sys.argv[3]
-  YahooBoard(outdir).execute(code,url)
+    #outdir = sys.argv[1]
+    #code = sys.argv[2]
+    #url = sys.argv[3]
+    outdir="tmp"
+    code="9963"
+    url="http://textream.yahoo.co.jp/message/1009963/9bebcibea6bbv/1"
+    YahooBoard(outdir).execute(code, url)
