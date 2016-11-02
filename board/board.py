@@ -31,6 +31,7 @@ class YahooBoard:
 
     def get_data(self, code, url):
         try:
+            print(url)
             iswrite = False
             html=urllib.urlopen(url).read()
             html=re.sub("\r","",html)
@@ -109,7 +110,7 @@ class YahooBoard:
                 if len(body_tmp)==0:
                     continue
                 body=body_tmp[0]
-                print body.text
+                #print body.text
                 body = body.text.encode("utf-8")
                 hash["body"] = str(body)
 
