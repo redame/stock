@@ -1,17 +1,15 @@
-#!/bin/env ruby
+#!/bin/env python
 # coding:utf-8
 
-require "open-uri"
-require "nokogiri"
-require "json"
-require "nkf"
-require "date"
+import json
+import urllib
+import urllib2
+from lxml import etree
+import time
 
-class YahooBoard
-  def initialize(outdir)
-    @outdir=outdir
-p @outdir
-  end
+class YahooBoard:
+  def __init__(outdir):
+    self.outdir=outdir
 
   def exec(code,topurl)
 p topurl
@@ -138,9 +136,8 @@ p lst
 end
 
 
-if __FILE__ == $0 then
-  if ARGV[0] == nil or ARGV[1] == nil or ARGV[2] == nil then
-    p "usage:"+$0 + " outdir code url"
-  end
-  YahooBoard.new(ARGV[0]).exec(ARGV[1],ARGV[2])
-end
+if __name__ == '__main__':
+  outdir=sys.argv[1]
+  code=sys.argv[2]
+  url=sys.argv[3]
+  YahooBoard(outdir).execute(code,url)
