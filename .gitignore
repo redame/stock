@@ -5,3 +5,5 @@ work
 data
 */.Rhistory
 */.RData
+.idea
+*.json
