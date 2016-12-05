@@ -14,9 +14,15 @@ cd /home/pi/stock/hist
 rm -rf daily/*.txt
 date
 
-yy=`date +%Y`
-mm=`date +%m`
-dd=`date +%d`
+yy=$1
+mm=$2
+dd=$3
+
+if [ "$1" = "" -o "$2" = "" -o "$3" = "" ];then
+  yy=`date +%Y`
+  mm=`date +%m`
+  dd=`date +%d`
+fi
 
 echo "/usr/bin/python master.py"
 /usr/bin/python master.py
@@ -37,10 +43,10 @@ for code in $codes;do
 .import $code histDaily
 Eof
 
-  mysql -ustock -hlocalhost --local-infile=1 stock << Eof
-load data local infile "/home/pi/stock/data/${code}" into table histDaily
-;
-Eof
+#  mysql -ustock -hlocalhost --local-infile=1 stock << Eof
+#load data local infile "/home/pi/stock/data/${code}" into table histDaily
+#;
+#Eof
 done
 
 
@@ -52,11 +58,11 @@ delete from stockMaster;
 .import daily/master.txt stockMaster
 Eof
 
-mysql -ustock -hlocalhost --local-infile=1 --default-character-set=utf8 stock << Eof
-delete from stockMaster
-;
-load data local infile "/home/pi/stock/data/daily/master.txt" into table stockMaster
-;
-Eof
+#mysql -ustock -hlocalhost --local-infile=1 --default-character-set=utf8 stock << Eof
+#delete from stockMaster
+#;
+#load data local infile "/home/pi/stock/data/daily/master.txt" into table stockMaster
+##;
+#Eof
 
 date

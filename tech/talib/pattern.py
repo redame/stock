@@ -139,6 +139,6 @@ class Executor:
 if __name__ == "__main__":
     argvs = sys.argv
     argc = len(argvs)
-    fromDate='2000-01-01'
-    toDate = '2010-12-31'
+    fromDate='2011-01-01'
+    toDate = '2016-08-12'
     Executor(fromDate,toDate).calc()

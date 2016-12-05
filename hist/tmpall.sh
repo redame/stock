@@ -1,11 +1,15 @@
 #!/bin/sh
 
-dd="
-09
+mms="
+7
+8
+9
 10
 11
 "
-for i in $dd;do
-echo $i
-bash tmp.sh $i
+for mm in $mms;do
+  echo $mm
+  for dd in `seq -f%02g 31`;do
+    bash tmp.sh $mm $dd
+  done
 done 
