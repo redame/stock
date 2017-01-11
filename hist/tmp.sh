@@ -11,15 +11,25 @@ export HOME=/home/pi
 
 
 cd /home/pi/stock/hist
-rm -rf daily/*.txt
+rm -rf daily/1*.txt
+rm -rf daily/2*.txt
+rm -rf daily/3*.txt
+rm -rf daily/4*.txt
+rm -rf daily/5*.txt
+rm -rf daily/6*.txt
+rm -rf daily/7*.txt
+rm -rf daily/8*.txt
+rm -rf daily/9*.txt
 date
 
 yy=2016
-mm=03
-dd="$1"
+mm="$1"
+dd="$2"
 
+if [ ! -f daily/master.txt ];then
 echo "/usr/bin/python master.py"
 /usr/bin/python master.py
+fi
 codes=`cat daily/master.txt|awk '{print $1}'`
 
 for code in $codes;do
