@@ -64,12 +64,12 @@ def get_stockdata_all(sy,sm,sd,ey,em,ed,tm):
     get_stockdata(ay[0],sy,sm,sd,ey,em,ed,tm)
 
 if __name__ == '__main__':
-  #code=sys.argv[1]
-  #y=sys.argv[2] # yyyy
-  #m=sys.argv[3] # mm
-  #d=sys.argv[4] # dd
-  code="6758"
-  y=2017
-  m=1
-  d=17
+  code=sys.argv[1]
+  y=sys.argv[2] # yyyy
+  m=sys.argv[3] # mm
+  d=sys.argv[4] # dd
+  #code="6758"
+  #y=2017
+  #m=1
+  #d=17
   get_stockdata(code,y,m,d,y,m,d,"d")
