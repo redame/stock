@@ -56,7 +56,7 @@ fi
 touch $LOCK
 
 for cate in $categories;do
-  ruby news.rb "/data/news/data" $cate  
+  ruby news.rb "/mnt/data/news" $cate  
 done
 
 rm -rf $LOCK
