@@ -1,7 +1,11 @@
-#!/bin/sh
+#!/bin/bash
+#PBS -N news_crawler
+#PBS -j oe 
+#PBS -l ncpus=1
+#PBS -q SINGLE
 
-export PATH=/home/pi/.dnx/runtimes/dnx-mono.1.0.0-beta4/bin:/usr/local/rbenv/shims:/usr/local/rbenv/bin:/usr/local/nvm/versions/node/v0.12.4/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
-
+cd ${PBS_O_WORKDIR}
+source ~/.bashrc
 
 categories="
 pol
@@ -48,16 +52,8 @@ sik
 kyuoki
 "
 
-cd /home/pi/stock/news
-LOCK=/tmp/news.lock
-if [ -f $LOCK ];then
-  exit 1
-fi
-touch $LOCK
 
 for cate in $categories;do
   ruby news.rb "/mnt/data/news" $cate  
 done
 
-rm -rf $LOCK
-exit 0

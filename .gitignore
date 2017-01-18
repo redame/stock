@@ -7,3 +7,4 @@ data
 */.RData
 .idea
 *.json
+*.o*
