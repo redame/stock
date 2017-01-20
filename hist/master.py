@@ -52,7 +52,7 @@ def get_stockmasterall():
     #print hira[i:i+1]
     #print i
     ss=ss+get_stockmaster(hira[i:i+1])
-  f=open("daily/master.txt","w")
+  f=open("data/daily/master.txt","w")
   f.write(ss)
   f.close()
 
