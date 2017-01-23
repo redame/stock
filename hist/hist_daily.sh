@@ -10,9 +10,6 @@ export LANG=ja_JP.UTF-8
 export HOME=/home/pi
 
 
-cd /home/pi/stock/hist
-rm -rf daily/*.txt
-date
 
 yy=$1
 mm=$2
@@ -23,6 +20,11 @@ if [ "$1" = "" -o "$2" = "" -o "$3" = "" ];then
   mm=`date +%m`
   dd=`date +%d`
 fi
+
+cd /home/pi/stock/hist
+mkdir -p daily/$yy$mm$dd
+mv -f daily/*.txt daily/$yy$mm$dd/.
+date
 
 echo "/usr/bin/python master.py"
 /usr/bin/python master.py

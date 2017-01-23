@@ -5,19 +5,27 @@ import urllib
 import urllib2
 from lxml import etree
 import time
-
+import datetime
 
 def get_stockdata(code,sy,sm,sd,ey,em,ed,tm):
   p=1
-  plen=53
+  plen=20
   ss=""
-  while(plen>=53):
+  while(plen>=20):
     ret,plen=get_stockdata_page(code,sy,sm,sd,ey,em,ed,tm,p)
     ss=ss+ret
     p=p+1
-  f=open("data/"+code+".txt","w")
+  f=open("daily/"+code+".txt","w")
+  #f=open(code+".txt","w")
   f.write(ss)
   f.close()
+
+def to_ymd(s):
+  a=s.split("-")
+  if len(a)<3:
+    return s
+  dt=datetime.datetime(int(a[0]),int(a[1]),int(a[2]),0,0,0)
+  return dt.strftime("%Y-%m-%d")
 
 def get_stockdata_page(code,sy,sm,sd,ey,em,ed,tm,p):
   # http://info.finance.yahoo.co.jp/history/?code=9433&sy=2014&sm=7&sd=28&ey=2014&em=8&ed=27&tm=d
@@ -35,17 +43,20 @@ def get_stockdata_page(code,sy,sm,sd,ey,em,ed,tm,p):
   plen=len(elem[1].xpath("//tr"))
   for tr in elem[1].xpath("//tr"):
     if len(tr.findall("td"))==7:
-      str=""
+      st=""
       for td in tr.findall("td"):
         s=td.text.encode('utf-8').replace(',','').replace('年','-').replace('月','-').replace('日','')
-        str=str+s+"\t"
-      str=str+code
-      ret=ret+str+"\n"
+        st=st+to_ymd(s)+"\t"
+      st=st+code
+      ret=ret+st+"\n"
   time.sleep(1)
+  #print "plen="+str(plen)+"\n"
+  #print ret+"\n"
   return ret,plen
 
 def get_stockdata_all(sy,sm,sd,ey,em,ed,tm):
-  f=open("data/master.txt")
+  f=open("daily/master.txt")
+  #f=open("master.txt")
   lines=f.readlines()
   f.close()
   for line in lines:
@@ -55,4 +66,4 @@ def get_stockdata_all(sy,sm,sd,ey,em,ed,tm):
 
 if __name__ == '__main__':
   #get_stockdata("9984","2012","01","01","2014","01","01","d")
-  get_stockdata_all("2000","01","01","2014","08","27","d")
+  get_stockdata_all("2016","07","28","2017","01","20","d")
