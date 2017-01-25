@@ -66,4 +66,4 @@ def get_stockdata_all(sy,sm,sd,ey,em,ed,tm):
 
 if __name__ == '__main__':
   #get_stockdata("9984","2012","01","01","2014","01","01","d")
-  get_stockdata_all("2016","07","28","2017","01","20","d")
+  get_stockdata_all("2015","11","07","2017","01","24","d")

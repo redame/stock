@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-ndate="2016-07-27"
+ndate="2015-11-07"
 
 
 while true ;do
@@ -12,7 +12,7 @@ while true ;do
   bash ./hist_daily.sh $yy $mm $dd
   ndate=`ruby next.rb $ndate`
   echo ndate=$ndate
-  if [ $ndate = "2017-01-17" ];then
+  if [ $ndate = "2017-01-24" ];then
     exit
   fi
 done
