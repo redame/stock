@@ -15,7 +15,7 @@ def get_stockdata(code,sy,sm,sd,ey,em,ed,tm):
     ret,plen=get_stockdata_page(code,sy,sm,sd,ey,em,ed,tm,p)
     ss=ss+ret
     p=p+1
-  f=open("daily/"+code+".txt","w")
+  f=open("/mnt/stock/data/hist/daily/"+code+".txt","w")
   #f=open(code+".txt","w")
   f.write(ss)
   f.close()
@@ -55,15 +55,20 @@ def get_stockdata_page(code,sy,sm,sd,ey,em,ed,tm,p):
   return ret,plen
 
 def get_stockdata_all(sy,sm,sd,ey,em,ed,tm):
-  f=open("daily/master.txt")
-  #f=open("master.txt")
-  lines=f.readlines()
-  f.close()
-  for line in lines:
-    ay=line.split("\t")
-    print ay[0]
-    get_stockdata(ay[0],sy,sm,sd,ey,em,ed,tm)
+  #f=open("daily/master.txt")
+  ##f=open("master.txt")
+  #lines=f.readlines()
+  #f.close()
+  #for line in lines:
+  #  ay=line.split("\t")
+  #  print ay[0]
+  for code in range(1321,9997):
+    try:
+      get_stockdata(str(code),sy,sm,sd,ey,em,ed,tm)
+    except:
+      import traceback
+      print traceback.format_exc()
 
 if __name__ == '__main__':
   #get_stockdata("9984","2012","01","01","2014","01","01","d")
-  get_stockdata_all("2015","11","07","2017","01","24","d")
+  get_stockdata_all("2001","01","01","2016","12","31","d")
